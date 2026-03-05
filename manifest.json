@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Reframe MTG",
   "version": "1.1.0",
-  "description": "Replace Magic: The Gathering card images on EDHREC and other sites with your preferred printings - old border, modern frame, Secret Lairs, and more.",
+  "description": "Replace MTG card images on EDHREC and other sites with your preferred printings - old border, modern frame, and more.",
   "permissions": [
     "storage",
     "activeTab",
