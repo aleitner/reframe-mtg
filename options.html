@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reframe MTG</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1c1c1e;
+      color: #e0e0e0;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #f0f0f0;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .section {
+      background: #252528;
+      border: 1px solid #3a3a3d;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      color: #f0f0f0;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle label {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .mode-switch {
+      display: flex;
+      background: #1c1c1e;
+      border: 1px solid #3a3a3d;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .mode-switch button {
+      background: transparent;
+      border: none;
+      color: #888;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-switch button.active {
+      background: #5a9fcf;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .mode-switch button:hover:not(.active) {
+      background: #2e2e31;
+      color: #ccc;
+    }
+
+    /* Option rows */
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .option-row:last-child { margin-bottom: 0; }
+
+    .option-row label {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    select {
+      background: #1c1c1e;
+      color: #e0e0e0;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    /* Search & controls */
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      background: #1c1c1e;
+      color: #e0e0e0;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .search-input::placeholder { color: #666; }
+
+    .filter-btn {
+      background: #2e2e31;
+      color: #aaa;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .filter-btn:hover { background: #38383b; }
+    .filter-btn.active { background: #5a9fcf; color: #fff; border-color: #5a9fcf; }
+
+    /* Set list */
+    .set-list-header {
+      display: grid;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #3a3a3d;
+    }
+
+    .set-list-header {
+      grid-template-columns: 32px 1fr 80px 70px 80px 60px 40px;
+    }
+
+    .set-list {
+      max-height: 60vh;
+      overflow-y: auto;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+    }
+
+    .set-list::-webkit-scrollbar { width: 8px; }
+    .set-list::-webkit-scrollbar-track { background: #252528; }
+    .set-list::-webkit-scrollbar-thumb { background: #48484b; border-radius: 4px; }
+
+    .set-item {
+      display: grid;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #252528;
+      background: #2a2a2d;
+      user-select: none;
+      transition: background 0.1s;
+    }
+
+    .set-item {
+      grid-template-columns: 32px 1fr 80px 70px 80px 60px 40px;
+      cursor: grab;
+    }
+
+    .set-item:active { cursor: grabbing; }
+    .set-item:hover { background: #333336; }
+    .set-item.excluded { opacity: 0.4; }
+    .set-item.drag-over { border-top: 2px solid #5a9fcf; }
+    .set-item.dragging { opacity: 0.3; }
+
+    .set-item .grip { color: #555; font-size: 14px; text-align: center; }
+    .set-item .set-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .set-item .set-code { color: #888; font-family: monospace; font-size: 12px; text-transform: uppercase; }
+    .set-item .set-year { color: #888; font-size: 12px; }
+    .set-item .set-type { color: #666; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .set-item input[type="checkbox"] {
+      accent-color: #5a9fcf;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primary { background: #5a9fcf; color: #fff; }
+    .btn-primary:hover { background: #6bb0dd; }
+    .btn-secondary { background: #2e2e31; color: #aaa; border: 1px solid #3a3a3d; }
+    .btn-secondary:hover { background: #38383b; }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #6abf6a;
+      min-height: 20px;
+    }
+
+    .loading { text-align: center; padding: 40px; color: #777; }
+    .set-count { font-size: 12px; color: #666; margin-bottom: 8px; }
+
+    /* Blocklist */
+    .blocklist-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .blocklist-input-row input {
+      flex: 1;
+      background: #1c1c1e;
+      color: #e0e0e0;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    .blocklist-input-row input::placeholder { color: #666; }
+
+    .blocklist-input-row button {
+      background: #5a9fcf;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .blocklist-input-row button:hover { background: #6bb0dd; }
+
+    .blocklist-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .blocklist-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2e2e31;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .blocklist-tag .remove-tag {
+      background: none;
+      border: none;
+      color: #cf6a6a;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .blocklist-tag .remove-tag:hover { color: #e08888; }
+    .blocklist-empty { color: #666; font-size: 12px; font-style: italic; }
+
+    /* Frame priority list */
+    .frame-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .frame-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #2a2a2d;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      cursor: grab;
+      user-select: none;
+      font-size: 13px;
+    }
+
+    .frame-item:active { cursor: grabbing; }
+    .frame-item:hover { background: #333336; }
+    .frame-item.drag-over { border-top: 2px solid #5a9fcf; }
+    .frame-item.dragging { opacity: 0.3; }
+
+    .frame-item .frame-rank {
+      color: #5a9fcf;
+      font-weight: 700;
+      font-size: 12px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .frame-item .frame-grip { color: #555; font-size: 14px; }
+    .frame-item .frame-name { flex: 1; }
+    .frame-item .frame-desc { color: #777; font-size: 11px; }
+
+    .hidden { display: none !important; }
+
+    /* Move buttons (touch-friendly reorder) */
+    .move-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .move-btn {
+      background: #38383b;
+      border: none;
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1;
+      padding: 3px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .move-btn:hover { background: #48484b; color: #fff; }
+    .move-btn:disabled { opacity: 0.2; cursor: default; }
+
+    /* Responsive: mobile */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      h1 { font-size: 18px; }
+
+      .mode-toggle { flex-wrap: wrap; }
+
+      .frame-item { gap: 6px; padding: 8px; }
+      .frame-item .frame-desc { display: none; }
+      .frame-item .frame-grip { display: none; }
+
+      .set-list-header { display: none; }
+      .set-item {
+        grid-template-columns: 1fr auto auto;
+        gap: 6px;
+        padding: 8px;
+      }
+      .set-item .grip { display: none; }
+      .set-item .set-year { display: none; }
+      .set-item .set-type { display: none; }
+
+      .option-row { flex-wrap: wrap; }
+
+      .controls { flex-direction: column; }
+      .search-input { min-width: unset; width: 100%; }
+
+      .actions { flex-direction: column; }
+      .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Reframe MTG</h1>
+  <p class="subtitle">Choose which printings to show when replacing card images on EDHREC and other sites.</p>
+
+  <div class="mode-toggle">
+    <label>Mode:</label>
+    <div class="mode-switch">
+      <button id="mode-simple" class="active">Simple</button>
+      <button id="mode-advanced">Advanced</button>
+    </div>
+    <span class="subtitle" style="margin-bottom:0" id="mode-desc">Frame priority with automatic sorting.</span>
+  </div>
+
+  <!-- Simple mode: frame priority -->
+  <div class="section" id="section-frames">
+    <h2>Frame Priority</h2>
+    <p class="subtitle" style="margin-bottom:12px">Drag to reorder. The extension tries each frame in order and falls back to the next.</p>
+    <div class="frame-list" id="frame-list"></div>
+  </div>
+
+  <div class="section hidden" id="section-sets">
+    <h2>Set Priority</h2>
+    <p class="subtitle" style="margin-bottom:12px">Drag sets to reorder priority. Higher = preferred. Uncheck to exclude.</p>
+
+    <div class="controls">
+      <input type="text" class="search-input" id="search" placeholder="Search sets by name or code...">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="included">Included</button>
+      <button class="filter-btn" data-filter="excluded">Excluded</button>
+      <button class="filter-btn" data-filter="paper">Paper</button>
+      <button class="filter-btn" data-filter="digital">Digital</button>
+    </div>
+
+    <div class="set-count" id="set-count"></div>
+
+    <div class="set-list-header">
+      <span></span>
+      <span>Set Name</span>
+      <span>Code</span>
+      <span>Year</span>
+      <span>Type</span>
+      <span>Include</span>
+      <span></span>
+    </div>
+
+    <div class="set-list" id="set-list">
+      <div class="loading" id="loading">Loading sets from Scryfall...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Printing Options</h2>
+    <div class="option-row" id="sort-row">
+      <label for="sort">Within same frame, prefer:</label>
+      <select id="sort">
+        <option value="asc">Oldest printing</option>
+        <option value="desc">Newest printing</option>
+      </select>
+    </div>
+    <div class="option-row" id="border-row">
+      <label for="border">Preferred border:</label>
+      <select id="border">
+        <option value="any">Any border</option>
+        <option value="black">Black border</option>
+        <option value="white">White border</option>
+        <option value="borderless">Borderless</option>
+      </select>
+    </div>
+    <div class="option-row">
+      <label for="finish">Preferred finish:</label>
+      <select id="finish">
+        <option value="any">Any finish</option>
+        <option value="nonfoil">Non-foil</option>
+        <option value="foil">Foil</option>
+        <option value="etched">Etched foil</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Blocked Printings</h2>
+    <p class="subtitle" style="margin-bottom:12px">Block specific printings by set code and collector number.</p>
+    <p class="subtitle" style="margin-bottom:12px">
+      Formats: <code style="color:#5a9fcf">sld:123</code> (single),
+      <code style="color:#5a9fcf">sld:100-200</code> (range),
+      <code style="color:#5a9fcf">sld</code> (entire set)
+    </p>
+    <div class="blocklist-input-row">
+      <input type="text" id="blocklist-input" placeholder="e.g. sld:586-590">
+      <button id="blocklist-add">Add</button>
+    </div>
+    <div class="blocklist-tags" id="blocklist-tags">
+      <span class="blocklist-empty">No blocked printings.</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="save">Save Settings</button>
+    <button class="btn btn-secondary" id="reset">Reset to Defaults</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  <p style="text-align:center;margin-top:24px;font-size:12px;color:#666;">
+    Made by <a href="https://github.com/aleitner" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">aleitner</a>
+    · <a href="https://ko-fi.com/piyrus" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">☕ Buy me a coffee</a>
+  </p>
+
+  <script src="options.js"></script>
+</body>
+</html>
