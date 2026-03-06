@@ -1,0 +1,265 @@
+{
+  "extName": {
+    "message": "Reframe MTG"
+  },
+  "extDescription": {
+    "message": "EDHRECなどのサイトでMTGカード画像をお好みの印刷版に置き換えます - 旧枠、新枠など。"
+  },
+  "popupTitle": {
+    "message": "Reframe MTG"
+  },
+  "popupToggleLabel": {
+    "message": "カードを置き換える"
+  },
+  "popupInfo": {
+    "message": "Scryfallを使用してカード画像を旧枠の印刷版に置き換えます。切り替え後はページを再読み込みしてください。"
+  },
+  "popupSettings": {
+    "message": "優先順位の設定"
+  },
+  "popupMadeBy": {
+    "message": "作者:"
+  },
+  "popupSupport": {
+    "message": "サポート"
+  },
+  "optionsTitle": {
+    "message": "Reframe MTG"
+  },
+  "optionsSubtitle": {
+    "message": "EDHRECなどのサイトでカード画像を置き換える際に表示する印刷版を選択します。"
+  },
+  "modeLabel": {
+    "message": "モード:"
+  },
+  "modeSimple": {
+    "message": "シンプル"
+  },
+  "modeAdvanced": {
+    "message": "詳細"
+  },
+  "modeSimpleDesc": {
+    "message": "お好みのフレームスタイルを選択。カードは自動的に最適な印刷版を使用します。"
+  },
+  "modeAdvancedDesc": {
+    "message": "セットの順序と除外を完全にコントロール。"
+  },
+  "framePriorityTitle": {
+    "message": "フレーム優先順位"
+  },
+  "framePriorityDesc": {
+    "message": "ドラッグして並び替え。拡張機能は順番にフレームを試し、次のフレームにフォールバックします。"
+  },
+  "langPriorityTitle": {
+    "message": "言語優先順位"
+  },
+  "langPriorityDesc": {
+    "message": "ドラッグして並び替え。最も優先度の高い言語のカードが使用されます。"
+  },
+  "setPriorityTitle": {
+    "message": "セット優先順位"
+  },
+  "setPriorityDesc": {
+    "message": "ドラッグしてセットの優先順位を変更。上位 = 優先。チェックを外すと除外。"
+  },
+  "searchPlaceholder": {
+    "message": "セット名またはコードで検索..."
+  },
+  "filterAll": {
+    "message": "すべて"
+  },
+  "filterIncluded": {
+    "message": "含む"
+  },
+  "filterExcluded": {
+    "message": "除外"
+  },
+  "filterPaper": {
+    "message": "紙"
+  },
+  "filterDigital": {
+    "message": "デジタル"
+  },
+  "colSetName": {
+    "message": "セット名"
+  },
+  "colCode": {
+    "message": "コード"
+  },
+  "colYear": {
+    "message": "年"
+  },
+  "colType": {
+    "message": "種類"
+  },
+  "colInclude": {
+    "message": "含む"
+  },
+  "printingOptionsTitle": {
+    "message": "印刷オプション"
+  },
+  "sortLabel": {
+    "message": "同じフレーム内での優先:"
+  },
+  "sortOldest": {
+    "message": "最も古い印刷版"
+  },
+  "sortNewest": {
+    "message": "最も新しい印刷版"
+  },
+  "borderLabel": {
+    "message": "優先する枠色:"
+  },
+  "borderAny": {
+    "message": "指定なし"
+  },
+  "borderBlack": {
+    "message": "黒枠"
+  },
+  "borderWhite": {
+    "message": "白枠"
+  },
+  "borderBorderless": {
+    "message": "枠なし"
+  },
+  "finishLabel": {
+    "message": "優先する仕上げ:"
+  },
+  "finishAny": {
+    "message": "指定なし"
+  },
+  "finishNonfoil": {
+    "message": "ノンフォイル"
+  },
+  "finishFoil": {
+    "message": "フォイル"
+  },
+  "finishEtched": {
+    "message": "エッチドフォイル"
+  },
+  "blockedTitle": {
+    "message": "ブロック済み印刷版"
+  },
+  "blockedDesc": {
+    "message": "セットコードとコレクター番号で特定の印刷版をブロックします。"
+  },
+  "blockedFormats": {
+    "message": "形式:"
+  },
+  "blockedSingle": {
+    "message": "単体"
+  },
+  "blockedRange": {
+    "message": "範囲"
+  },
+  "blockedEntireSet": {
+    "message": "セット全体"
+  },
+  "blockedPlaceholder": {
+    "message": "例: sld:586-590"
+  },
+  "blockedAdd": {
+    "message": "追加"
+  },
+  "blockedEmpty": {
+    "message": "ブロック済みの印刷版はありません。"
+  },
+  "blockedInvalidFormat": {
+    "message": "無効な形式です。「sld:123」、「sld:100-200」、または「sld」を使用してください。"
+  },
+  "saveButton": {
+    "message": "設定を保存"
+  },
+  "resetButton": {
+    "message": "デフォルトに戻す"
+  },
+  "resetConfirm": {
+    "message": "すべての設定をデフォルトに戻しますか？"
+  },
+  "statusSaved": {
+    "message": "設定を保存しました！"
+  },
+  "statusReset": {
+    "message": "設定をデフォルトに戻しました。"
+  },
+  "loadingSets": {
+    "message": "Scryfallからセットを読み込み中..."
+  },
+  "madeBy": {
+    "message": "作者:"
+  },
+  "buyCoffee": {
+    "message": "コーヒーをおごる"
+  },
+  "showingSets": {
+    "message": "$2セット中$1件を表示（$3件を含む）",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "frameOriginalOld": {
+    "message": "オリジナル旧枠"
+  },
+  "frameOriginalOldDesc": {
+    "message": "アルファからミラージュまで (1993)"
+  },
+  "frameRevisedOld": {
+    "message": "改訂版旧枠"
+  },
+  "frameRevisedOldDesc": {
+    "message": "ミラージュからスカージまで (1997)"
+  },
+  "frameModern": {
+    "message": "モダンフレーム"
+  },
+  "frameModernDesc": {
+    "message": "第8版からM14まで (2003)"
+  },
+  "frameNew": {
+    "message": "新フレーム"
+  },
+  "frameNewDesc": {
+    "message": "M15以降 (2015)"
+  },
+  "frameFuture": {
+    "message": "未来予知"
+  },
+  "frameFutureDesc": {
+    "message": "未来予知フレーム"
+  },
+  "langEnglish": {
+    "message": "英語"
+  },
+  "langJapanese": {
+    "message": "日本語"
+  },
+  "langSimplifiedChinese": {
+    "message": "簡体字中国語"
+  },
+  "langTraditionalChinese": {
+    "message": "繁体字中国語"
+  },
+  "langKorean": {
+    "message": "韓国語"
+  },
+  "langGerman": {
+    "message": "ドイツ語"
+  },
+  "langFrench": {
+    "message": "フランス語"
+  },
+  "langSpanish": {
+    "message": "スペイン語"
+  },
+  "langItalian": {
+    "message": "イタリア語"
+  },
+  "langPortuguese": {
+    "message": "ポルトガル語"
+  },
+  "langRussian": {
+    "message": "ロシア語"
+  }
+}

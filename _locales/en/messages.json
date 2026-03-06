@@ -1,0 +1,265 @@
+{
+  "extName": {
+    "message": "Reframe MTG"
+  },
+  "extDescription": {
+    "message": "Replace MTG card images on EDHREC and other sites with your preferred printings - old border, modern frame, and more."
+  },
+  "popupTitle": {
+    "message": "Reframe MTG"
+  },
+  "popupToggleLabel": {
+    "message": "Replace cards"
+  },
+  "popupInfo": {
+    "message": "Replaces card images with old border printings via Scryfall. Reload the page after toggling."
+  },
+  "popupSettings": {
+    "message": "Set Priority Settings"
+  },
+  "popupMadeBy": {
+    "message": "Made by"
+  },
+  "popupSupport": {
+    "message": "Support"
+  },
+  "optionsTitle": {
+    "message": "Reframe MTG"
+  },
+  "optionsSubtitle": {
+    "message": "Choose which printings to show when replacing card images on EDHREC and other sites."
+  },
+  "modeLabel": {
+    "message": "Mode:"
+  },
+  "modeSimple": {
+    "message": "Simple"
+  },
+  "modeAdvanced": {
+    "message": "Advanced"
+  },
+  "modeSimpleDesc": {
+    "message": "Pick your preferred frame style. Cards automatically use the best available printing."
+  },
+  "modeAdvancedDesc": {
+    "message": "Full control over set ordering and exclusions."
+  },
+  "framePriorityTitle": {
+    "message": "Frame Priority"
+  },
+  "framePriorityDesc": {
+    "message": "Drag to reorder. The extension tries each frame in order and falls back to the next."
+  },
+  "langPriorityTitle": {
+    "message": "Language Priority"
+  },
+  "langPriorityDesc": {
+    "message": "Drag to reorder. Cards will use the highest-priority language available."
+  },
+  "setPriorityTitle": {
+    "message": "Set Priority"
+  },
+  "setPriorityDesc": {
+    "message": "Drag sets to reorder priority. Higher = preferred. Uncheck to exclude."
+  },
+  "searchPlaceholder": {
+    "message": "Search sets by name or code..."
+  },
+  "filterAll": {
+    "message": "All"
+  },
+  "filterIncluded": {
+    "message": "Included"
+  },
+  "filterExcluded": {
+    "message": "Excluded"
+  },
+  "filterPaper": {
+    "message": "Paper"
+  },
+  "filterDigital": {
+    "message": "Digital"
+  },
+  "colSetName": {
+    "message": "Set Name"
+  },
+  "colCode": {
+    "message": "Code"
+  },
+  "colYear": {
+    "message": "Year"
+  },
+  "colType": {
+    "message": "Type"
+  },
+  "colInclude": {
+    "message": "Include"
+  },
+  "printingOptionsTitle": {
+    "message": "Printing Options"
+  },
+  "sortLabel": {
+    "message": "Within same frame, prefer:"
+  },
+  "sortOldest": {
+    "message": "Oldest printing"
+  },
+  "sortNewest": {
+    "message": "Newest printing"
+  },
+  "borderLabel": {
+    "message": "Preferred border:"
+  },
+  "borderAny": {
+    "message": "Any border"
+  },
+  "borderBlack": {
+    "message": "Black border"
+  },
+  "borderWhite": {
+    "message": "White border"
+  },
+  "borderBorderless": {
+    "message": "Borderless"
+  },
+  "finishLabel": {
+    "message": "Preferred finish:"
+  },
+  "finishAny": {
+    "message": "Any finish"
+  },
+  "finishNonfoil": {
+    "message": "Non-foil"
+  },
+  "finishFoil": {
+    "message": "Foil"
+  },
+  "finishEtched": {
+    "message": "Etched foil"
+  },
+  "blockedTitle": {
+    "message": "Blocked Printings"
+  },
+  "blockedDesc": {
+    "message": "Block specific printings by set code and collector number."
+  },
+  "blockedFormats": {
+    "message": "Formats:"
+  },
+  "blockedSingle": {
+    "message": "single"
+  },
+  "blockedRange": {
+    "message": "range"
+  },
+  "blockedEntireSet": {
+    "message": "entire set"
+  },
+  "blockedPlaceholder": {
+    "message": "e.g. sld:586-590"
+  },
+  "blockedAdd": {
+    "message": "Add"
+  },
+  "blockedEmpty": {
+    "message": "No blocked printings."
+  },
+  "blockedInvalidFormat": {
+    "message": "Invalid format. Use \"sld:123\", \"sld:100-200\", or \"sld\"."
+  },
+  "saveButton": {
+    "message": "Save Settings"
+  },
+  "resetButton": {
+    "message": "Reset to Defaults"
+  },
+  "resetConfirm": {
+    "message": "Reset all settings to defaults?"
+  },
+  "statusSaved": {
+    "message": "Settings saved!"
+  },
+  "statusReset": {
+    "message": "Settings reset to defaults."
+  },
+  "loadingSets": {
+    "message": "Loading sets from Scryfall..."
+  },
+  "madeBy": {
+    "message": "Made by"
+  },
+  "buyCoffee": {
+    "message": "Buy me a coffee"
+  },
+  "showingSets": {
+    "message": "Showing $1 of $2 sets ($3 included)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "frameOriginalOld": {
+    "message": "Original Old Border"
+  },
+  "frameOriginalOldDesc": {
+    "message": "Alpha through Mirage (1993)"
+  },
+  "frameRevisedOld": {
+    "message": "Revised Old Border"
+  },
+  "frameRevisedOldDesc": {
+    "message": "Mirage through Scourge (1997)"
+  },
+  "frameModern": {
+    "message": "Modern Frame"
+  },
+  "frameModernDesc": {
+    "message": "8th Edition through M14 (2003)"
+  },
+  "frameNew": {
+    "message": "New Frame"
+  },
+  "frameNewDesc": {
+    "message": "M15 and later (2015)"
+  },
+  "frameFuture": {
+    "message": "Future Sight"
+  },
+  "frameFutureDesc": {
+    "message": "Futureshifted frame"
+  },
+  "langEnglish": {
+    "message": "English"
+  },
+  "langJapanese": {
+    "message": "Japanese"
+  },
+  "langSimplifiedChinese": {
+    "message": "Simplified Chinese"
+  },
+  "langTraditionalChinese": {
+    "message": "Traditional Chinese"
+  },
+  "langKorean": {
+    "message": "Korean"
+  },
+  "langGerman": {
+    "message": "German"
+  },
+  "langFrench": {
+    "message": "French"
+  },
+  "langSpanish": {
+    "message": "Spanish"
+  },
+  "langItalian": {
+    "message": "Italian"
+  },
+  "langPortuguese": {
+    "message": "Portuguese"
+  },
+  "langRussian": {
+    "message": "Russian"
+  }
+}

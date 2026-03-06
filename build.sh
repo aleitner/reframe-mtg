@@ -4,7 +4,8 @@
 
 set -e
 
-FILES="background.js content.js options.js popup.js options.html popup.html icons/icon-48.svg"
+FILES="background.js content.js options.js popup.js i18n.js options.html popup.html icons/icon-48.svg icons/icon-48.png icons/icon-128.png"
+LOCALES="_locales/en/messages.json _locales/ja/messages.json"
 
 # Clean previous builds
 rm -rf build/
@@ -12,7 +13,7 @@ mkdir -p build/chrome build/firefox
 
 # Copy shared files
 for target in chrome firefox; do
-  for f in $FILES; do
+  for f in $FILES $LOCALES; do
     dir=$(dirname "build/$target/$f")
     mkdir -p "$dir"
     cp "$f" "build/$target/$f"

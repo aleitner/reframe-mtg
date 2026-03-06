@@ -333,6 +333,66 @@
     .frame-item .frame-name { flex: 1; }
     .frame-item .frame-desc { color: #777; font-size: 11px; }
 
+    /* Language priority list */
+    .lang-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #2a2a2d;
+      border: 1px solid #3a3a3d;
+      border-radius: 4px;
+      cursor: grab;
+      user-select: none;
+      font-size: 13px;
+    }
+
+    .lang-item:active { cursor: grabbing; }
+    .lang-item:hover { background: #333336; }
+    .lang-item.drag-over { border-top: 2px solid #5a9fcf; }
+    .lang-item.dragging { opacity: 0.3; }
+
+    .lang-item .lang-rank {
+      color: #5a9fcf;
+      font-weight: 700;
+      font-size: 12px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .lang-item .lang-grip { color: #555; font-size: 14px; }
+    .lang-item .lang-name { flex: 1; }
+    .lang-item .lang-code { color: #777; font-family: monospace; font-size: 11px; }
+
+    /* Collapsible sections */
+    .collapsible {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .collapsible:hover { color: #5a9fcf; }
+
+    .collapse-arrow {
+      font-size: 12px;
+      color: #888;
+      transition: transform 0.2s;
+    }
+
+    .collapse-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .collapse-body { margin-top: 12px; }
+
     .hidden { display: none !important; }
 
     /* Move buttons (touch-friendly reorder) */
@@ -367,6 +427,10 @@
       .frame-item .frame-desc { display: none; }
       .frame-item .frame-grip { display: none; }
 
+      .lang-item { gap: 6px; padding: 8px; }
+      .lang-item .lang-grip { display: none; }
+      .lang-item .lang-code { display: none; }
+
       .set-list-header { display: none; }
       .set-item {
         grid-template-columns: 1fr auto auto;
@@ -388,112 +452,124 @@
   </style>
 </head>
 <body>
-  <h1>Reframe MTG</h1>
-  <p class="subtitle">Choose which printings to show when replacing card images on EDHREC and other sites.</p>
+  <h1 data-i18n="optionsTitle">Reframe MTG</h1>
+  <p class="subtitle" data-i18n="optionsSubtitle">Choose which printings to show when replacing card images on EDHREC and other sites.</p>
 
   <div class="mode-toggle">
-    <label>Mode:</label>
+    <label data-i18n="modeLabel">Mode:</label>
     <div class="mode-switch">
-      <button id="mode-simple" class="active">Simple</button>
-      <button id="mode-advanced">Advanced</button>
+      <button id="mode-simple" class="active" data-i18n="modeSimple">Simple</button>
+      <button id="mode-advanced" data-i18n="modeAdvanced">Advanced</button>
     </div>
-    <span class="subtitle" style="margin-bottom:0" id="mode-desc">Frame priority with automatic sorting.</span>
+    <span class="subtitle" style="margin-bottom:0" id="mode-desc" data-i18n="modeSimpleDesc">Pick your preferred frame style. Cards automatically use the best available printing.</span>
   </div>
 
   <!-- Simple mode: frame priority -->
   <div class="section" id="section-frames">
-    <h2>Frame Priority</h2>
-    <p class="subtitle" style="margin-bottom:12px">Drag to reorder. The extension tries each frame in order and falls back to the next.</p>
+    <h2 data-i18n="framePriorityTitle">Frame Priority</h2>
+    <p class="subtitle" style="margin-bottom:12px" data-i18n="framePriorityDesc">Drag to reorder. The extension tries each frame in order and falls back to the next.</p>
     <div class="frame-list" id="frame-list"></div>
   </div>
 
   <div class="section hidden" id="section-sets">
-    <h2>Set Priority</h2>
-    <p class="subtitle" style="margin-bottom:12px">Drag sets to reorder priority. Higher = preferred. Uncheck to exclude.</p>
+    <h2 data-i18n="setPriorityTitle">Set Priority</h2>
+    <p class="subtitle" style="margin-bottom:12px" data-i18n="setPriorityDesc">Drag sets to reorder priority. Higher = preferred. Uncheck to exclude.</p>
 
     <div class="controls">
-      <input type="text" class="search-input" id="search" placeholder="Search sets by name or code...">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="included">Included</button>
-      <button class="filter-btn" data-filter="excluded">Excluded</button>
-      <button class="filter-btn" data-filter="paper">Paper</button>
-      <button class="filter-btn" data-filter="digital">Digital</button>
+      <input type="text" class="search-input" id="search" data-i18n-placeholder="searchPlaceholder" placeholder="Search sets by name or code...">
+      <button class="filter-btn active" data-filter="all" data-i18n="filterAll">All</button>
+      <button class="filter-btn" data-filter="included" data-i18n="filterIncluded">Included</button>
+      <button class="filter-btn" data-filter="excluded" data-i18n="filterExcluded">Excluded</button>
+      <button class="filter-btn" data-filter="paper" data-i18n="filterPaper">Paper</button>
+      <button class="filter-btn" data-filter="digital" data-i18n="filterDigital">Digital</button>
     </div>
 
     <div class="set-count" id="set-count"></div>
 
     <div class="set-list-header">
       <span></span>
-      <span>Set Name</span>
-      <span>Code</span>
-      <span>Year</span>
-      <span>Type</span>
-      <span>Include</span>
+      <span data-i18n="colSetName">Set Name</span>
+      <span data-i18n="colCode">Code</span>
+      <span data-i18n="colYear">Year</span>
+      <span data-i18n="colType">Type</span>
+      <span data-i18n="colInclude">Include</span>
       <span></span>
     </div>
 
     <div class="set-list" id="set-list">
-      <div class="loading" id="loading">Loading sets from Scryfall...</div>
+      <div class="loading" id="loading" data-i18n="loadingSets">Loading sets from Scryfall...</div>
+    </div>
+  </div>
+
+  <div class="section" id="section-langs">
+    <h2 class="collapsible" id="lang-toggle">
+      <span data-i18n="langPriorityTitle">Language Priority</span>
+      <span class="collapse-arrow" id="lang-arrow">&#9654;</span>
+    </h2>
+    <div id="lang-body" class="collapse-body hidden">
+      <p class="subtitle" style="margin-bottom:12px" data-i18n="langPriorityDesc">Drag to reorder. Cards will use the highest-priority language available.</p>
+      <div class="lang-list" id="lang-list"></div>
     </div>
   </div>
 
   <div class="section">
-    <h2>Printing Options</h2>
+    <h2 data-i18n="printingOptionsTitle">Printing Options</h2>
     <div class="option-row" id="sort-row">
-      <label for="sort">Within same frame, prefer:</label>
+      <label for="sort" data-i18n="sortLabel">Within same frame, prefer:</label>
       <select id="sort">
-        <option value="asc">Oldest printing</option>
-        <option value="desc">Newest printing</option>
+        <option value="asc" data-i18n="sortOldest">Oldest printing</option>
+        <option value="desc" data-i18n="sortNewest">Newest printing</option>
       </select>
     </div>
     <div class="option-row" id="border-row">
-      <label for="border">Preferred border:</label>
+      <label for="border" data-i18n="borderLabel">Preferred border:</label>
       <select id="border">
-        <option value="any">Any border</option>
-        <option value="black">Black border</option>
-        <option value="white">White border</option>
-        <option value="borderless">Borderless</option>
+        <option value="any" data-i18n="borderAny">Any border</option>
+        <option value="black" data-i18n="borderBlack">Black border</option>
+        <option value="white" data-i18n="borderWhite">White border</option>
+        <option value="borderless" data-i18n="borderBorderless">Borderless</option>
       </select>
     </div>
     <div class="option-row">
-      <label for="finish">Preferred finish:</label>
+      <label for="finish" data-i18n="finishLabel">Preferred finish:</label>
       <select id="finish">
-        <option value="any">Any finish</option>
-        <option value="nonfoil">Non-foil</option>
-        <option value="foil">Foil</option>
-        <option value="etched">Etched foil</option>
+        <option value="any" data-i18n="finishAny">Any finish</option>
+        <option value="nonfoil" data-i18n="finishNonfoil">Non-foil</option>
+        <option value="foil" data-i18n="finishFoil">Foil</option>
+        <option value="etched" data-i18n="finishEtched">Etched foil</option>
       </select>
     </div>
   </div>
 
   <div class="section">
-    <h2>Blocked Printings</h2>
-    <p class="subtitle" style="margin-bottom:12px">Block specific printings by set code and collector number.</p>
+    <h2 data-i18n="blockedTitle">Blocked Printings</h2>
+    <p class="subtitle" style="margin-bottom:12px" data-i18n="blockedDesc">Block specific printings by set code and collector number.</p>
     <p class="subtitle" style="margin-bottom:12px">
-      Formats: <code style="color:#5a9fcf">sld:123</code> (single),
-      <code style="color:#5a9fcf">sld:100-200</code> (range),
-      <code style="color:#5a9fcf">sld</code> (entire set)
+      <span data-i18n="blockedFormats">Formats:</span> <code style="color:#5a9fcf">sld:123</code> (<span data-i18n="blockedSingle">single</span>),
+      <code style="color:#5a9fcf">sld:100-200</code> (<span data-i18n="blockedRange">range</span>),
+      <code style="color:#5a9fcf">sld</code> (<span data-i18n="blockedEntireSet">entire set</span>)
     </p>
     <div class="blocklist-input-row">
-      <input type="text" id="blocklist-input" placeholder="e.g. sld:586-590">
-      <button id="blocklist-add">Add</button>
+      <input type="text" id="blocklist-input" data-i18n-placeholder="blockedPlaceholder" placeholder="e.g. sld:586-590">
+      <button id="blocklist-add" data-i18n="blockedAdd">Add</button>
     </div>
     <div class="blocklist-tags" id="blocklist-tags">
-      <span class="blocklist-empty">No blocked printings.</span>
+      <span class="blocklist-empty" data-i18n="blockedEmpty">No blocked printings.</span>
     </div>
   </div>
 
   <div class="actions">
-    <button class="btn btn-primary" id="save">Save Settings</button>
-    <button class="btn btn-secondary" id="reset">Reset to Defaults</button>
+    <button class="btn btn-primary" id="save" data-i18n="saveButton">Save Settings</button>
+    <button class="btn btn-secondary" id="reset" data-i18n="resetButton">Reset to Defaults</button>
   </div>
   <div class="status" id="status"></div>
 
   <p style="text-align:center;margin-top:24px;font-size:12px;color:#666;">
-    Made by <a href="https://github.com/aleitner" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">aleitner</a>
-    · <a href="https://ko-fi.com/piyrus" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">☕ Buy me a coffee</a>
+    <span data-i18n="madeBy">Made by</span> <a href="https://github.com/aleitner" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">aleitner</a>
+    · <a href="https://ko-fi.com/piyrus" target="_blank" rel="noopener" style="color:#5a9fcf;text-decoration:none;">&#9749; <span data-i18n="buyCoffee">Buy me a coffee</span></a>
   </p>
 
+  <script src="i18n.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

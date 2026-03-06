@@ -6,22 +6,49 @@ const DIGITAL_SET_TYPES = new Set([
   "scheme", "vanguard", "funny", "alchemy",
 ]);
 
-// All frame types with display names
+// All frame types with i18n keys
 const FRAME_DEFS = {
-  "1993": { name: "Original Old Border", desc: "Alpha through Mirage (1993)" },
-  "1997": { name: "Revised Old Border", desc: "Mirage through Scourge (1997)" },
-  "2003": { name: "Modern Frame", desc: "8th Edition through M14 (2003)" },
-  "2015": { name: "New Frame", desc: "M15 and later (2015)" },
-  "future": { name: "Future Sight", desc: "Futureshifted frame" },
+  "1993": { nameKey: "frameOriginalOld", descKey: "frameOriginalOldDesc" },
+  "1997": { nameKey: "frameRevisedOld", descKey: "frameRevisedOldDesc" },
+  "2003": { nameKey: "frameModern", descKey: "frameModernDesc" },
+  "2015": { nameKey: "frameNew", descKey: "frameNewDesc" },
+  "future": { nameKey: "frameFuture", descKey: "frameFutureDesc" },
 };
 
 const DEFAULT_FRAME_PRIORITY = ["1993", "1997", "2003", "2015", "future"];
+
+// Language definitions with i18n keys
+const LANG_DEFS = {
+  en: "langEnglish",
+  ja: "langJapanese",
+  zhs: "langSimplifiedChinese",
+  zht: "langTraditionalChinese",
+  ko: "langKorean",
+  de: "langGerman",
+  fr: "langFrench",
+  es: "langSpanish",
+  it: "langItalian",
+  pt: "langPortuguese",
+  ru: "langRussian",
+};
+
+const ALL_LANGS = ["en", "ja", "zhs", "zht", "ko", "de", "fr", "es", "it", "pt", "ru"];
+
+function getDefaultLangPriority() {
+  const browserLang = (navigator.language || "en").toLowerCase();
+  const langMap = { zh: "zhs", "zh-cn": "zhs", "zh-tw": "zht", "zh-hk": "zht" };
+  const primary = langMap[browserLang] || langMap[browserLang.split("-")[0]] || ALL_LANGS.find((l) => browserLang.startsWith(l)) || "en";
+  return [primary, ...ALL_LANGS.filter((l) => l !== primary)];
+}
+
+const DEFAULT_LANG_PRIORITY = getDefaultLangPriority();
 
 let allSets = [];
 let setOrder = [];
 let excludedSets = new Set();
 let blockedPrintings = [];
 let framePriority = [...DEFAULT_FRAME_PRIORITY];
+let langPriority = [...DEFAULT_LANG_PRIORITY];
 let activeFilter = "all";
 let advancedMode = false;
 
@@ -70,9 +97,7 @@ function setMode(isAdvanced) {
 
   document.getElementById("mode-simple").classList.toggle("active", !isAdvanced);
   document.getElementById("mode-advanced").classList.toggle("active", isAdvanced);
-  document.getElementById("mode-desc").textContent = isAdvanced
-    ? "Full control over set ordering and exclusions."
-    : "Pick your preferred frame style. Cards automatically use the best available printing.";
+  document.getElementById("mode-desc").textContent = i18n(isAdvanced ? "modeAdvancedDesc" : "modeSimpleDesc");
 
   // Show/hide sections based on mode
   document.getElementById("section-frames").classList.toggle("hidden", isAdvanced);
@@ -95,6 +120,7 @@ async function loadSettings() {
     preferredFinish: "any",
     preferredBorder: "any",
     framePriority: DEFAULT_FRAME_PRIORITY,
+    langPriority: DEFAULT_LANG_PRIORITY,
     sortDirection: "asc",
     advancedMode: false,
     setsCache: null,
@@ -105,6 +131,7 @@ async function loadSettings() {
   document.getElementById("border").value = stored.preferredBorder || "any";
   document.getElementById("sort").value = stored.sortDirection || "asc";
   framePriority = stored.framePriority || [...DEFAULT_FRAME_PRIORITY];
+  langPriority = stored.langPriority || [...DEFAULT_LANG_PRIORITY];
   advancedMode = stored.advancedMode || false;
 
   const cacheAge = Date.now() - (stored.setsCacheTime || 0);
@@ -134,6 +161,7 @@ async function loadSettings() {
   blockedPrintings = stored.blockedPrintings || [];
   renderBlocklist();
   renderFrameList();
+  renderLangList();
   setMode(advancedMode);
 }
 
@@ -161,10 +189,10 @@ function renderFrameList() {
     grip.textContent = "\u2630";
     const name = document.createElement("span");
     name.className = "frame-name";
-    name.textContent = def.name;
+    name.textContent = i18n(def.nameKey);
     const desc = document.createElement("span");
     desc.className = "frame-desc";
-    desc.textContent = def.desc;
+    desc.textContent = i18n(def.descKey);
 
     const moveBtns = document.createElement("span");
     moveBtns.className = "move-btns";
@@ -234,6 +262,103 @@ function renderFrameList() {
   });
 }
 
+// Language priority list
+let draggedLang = null;
+
+function renderLangList() {
+  const container = document.getElementById("lang-list");
+  container.innerHTML = "";
+
+  langPriority.forEach((lang, idx) => {
+    const nameKey = LANG_DEFS[lang];
+    if (!nameKey) return;
+
+    const item = document.createElement("div");
+    item.className = "lang-item";
+    item.dataset.lang = lang;
+    item.draggable = true;
+
+    const rank = document.createElement("span");
+    rank.className = "lang-rank";
+    rank.textContent = idx + 1;
+    const grip = document.createElement("span");
+    grip.className = "lang-grip";
+    grip.textContent = "\u2630";
+    const nameEl = document.createElement("span");
+    nameEl.className = "lang-name";
+    nameEl.textContent = i18n(nameKey);
+    const code = document.createElement("span");
+    code.className = "lang-code";
+    code.textContent = lang;
+
+    const moveBtns = document.createElement("span");
+    moveBtns.className = "move-btns";
+    const upBtn = document.createElement("button");
+    upBtn.className = "move-btn";
+    upBtn.textContent = "\u25B2";
+    upBtn.disabled = idx === 0;
+    upBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (idx > 0) {
+        langPriority.splice(idx, 1);
+        langPriority.splice(idx - 1, 0, lang);
+        renderLangList();
+      }
+    });
+    const downBtn = document.createElement("button");
+    downBtn.className = "move-btn";
+    downBtn.textContent = "\u25BC";
+    downBtn.disabled = idx === langPriority.length - 1;
+    downBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (idx < langPriority.length - 1) {
+        langPriority.splice(idx, 1);
+        langPriority.splice(idx + 1, 0, lang);
+        renderLangList();
+      }
+    });
+    moveBtns.append(upBtn, downBtn);
+
+    item.append(rank, grip, nameEl, code, moveBtns);
+
+    item.addEventListener("dragstart", (e) => {
+      draggedLang = lang;
+      item.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    item.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (item.dataset.lang !== draggedLang) item.classList.add("drag-over");
+    });
+
+    item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
+
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      item.classList.remove("drag-over");
+      if (draggedLang && draggedLang !== lang) {
+        const fromIdx = langPriority.indexOf(draggedLang);
+        const toIdx = langPriority.indexOf(lang);
+        if (fromIdx !== -1 && toIdx !== -1) {
+          langPriority.splice(fromIdx, 1);
+          langPriority.splice(toIdx, 0, draggedLang);
+          renderLangList();
+        }
+      }
+    });
+
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      document.querySelectorAll(".lang-item.drag-over").forEach((el) => el.classList.remove("drag-over"));
+      draggedLang = null;
+    });
+
+    container.appendChild(item);
+  });
+}
+
 // Set list (advanced mode)
 function getSetMap() {
   const m = new Map();
@@ -260,7 +385,7 @@ function renderSetList() {
   });
 
   document.getElementById("set-count").textContent =
-    `Showing ${filtered.length} of ${allSets.length} sets (${setOrder.length - excludedSets.size} included)`;
+    i18n("showingSets", String(filtered.length), String(allSets.length), String(setOrder.length - excludedSets.size));
 
   container.innerHTML = "";
 
@@ -345,7 +470,7 @@ function formatType(s) {
 
 function updateCount() {
   document.getElementById("set-count").textContent =
-    `Showing ${document.querySelectorAll(".set-item").length} of ${allSets.length} sets (${setOrder.length - excludedSets.size} included)`;
+    i18n("showingSets", String(document.querySelectorAll(".set-item").length), String(allSets.length), String(setOrder.length - excludedSets.size));
 }
 
 // Set list drag and drop
@@ -406,7 +531,7 @@ function renderBlocklist() {
   if (blockedPrintings.length === 0) {
     const span = document.createElement("span");
     span.className = "blocklist-empty";
-    span.textContent = "No blocked printings.";
+    span.textContent = i18n("blockedEmpty");
     container.appendChild(span);
     return;
   }
@@ -434,7 +559,7 @@ document.getElementById("blocklist-add").addEventListener("click", () => {
   if (!val) return;
 
   if (!/^[a-z0-9_]+(?::\d+(?:-\d+)?)?$/.test(val)) {
-    alert('Invalid format. Use "sld:123", "sld:100-200", or "sld".');
+    alert(i18n("blockedInvalidFormat"));
     return;
   }
 
@@ -463,18 +588,20 @@ document.getElementById("save").addEventListener("click", async () => {
     preferredFinish: document.getElementById("finish").value,
     preferredBorder: document.getElementById("border").value,
     framePriority,
+    langPriority,
     sortDirection: document.getElementById("sort").value,
     advancedMode,
   });
-  showStatus("Settings saved!");
+  showStatus(i18n("statusSaved"));
 });
 
 // Reset
 document.getElementById("reset").addEventListener("click", async () => {
-  if (!confirm("Reset all settings to defaults?")) return;
+  if (!confirm(i18n("resetConfirm"))) return;
 
   blockedPrintings = [];
   framePriority = [...DEFAULT_FRAME_PRIORITY];
+  langPriority = [...DEFAULT_LANG_PRIORITY];
   excludedSets = getDefaultExclusions(allSets);
   setOrder = getDefaultOrder(allSets);
   document.getElementById("finish").value = "any";
@@ -488,14 +615,24 @@ document.getElementById("reset").addEventListener("click", async () => {
     preferredFinish: "any",
     preferredBorder: "any",
     framePriority,
+    langPriority,
     sortDirection: "asc",
     advancedMode,
   });
 
   renderFrameList();
+  renderLangList();
   renderBlocklist();
   if (advancedMode) renderSetList();
-  showStatus("Settings reset to defaults.");
+  showStatus(i18n("statusReset"));
+});
+
+// Collapsible language section
+document.getElementById("lang-toggle").addEventListener("click", () => {
+  const body = document.getElementById("lang-body");
+  const arrow = document.getElementById("lang-arrow");
+  body.classList.toggle("hidden");
+  arrow.classList.toggle("open");
 });
 
 // Init

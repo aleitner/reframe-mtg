@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Reframe MTG",
+  "name": "__MSG_extName__",
   "version": "1.1.0",
-  "description": "Replace MTG card images on EDHREC and other sites with your preferred printings - old border, modern frame, and more.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": [
     "storage",
     "activeTab"

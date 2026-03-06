@@ -20,6 +20,17 @@ async function waitForRateLimit() {
 
 const DEFAULT_FRAME_PRIORITY = ["1993", "1997", "2003", "2015", "future"];
 
+const ALL_LANGS = ["en", "ja", "zhs", "zht", "ko", "de", "fr", "es", "it", "pt", "ru"];
+
+function getDefaultLangPriority() {
+  const browserLang = (navigator.language || "en").toLowerCase();
+  const langMap = { zh: "zhs", "zh-cn": "zhs", "zh-tw": "zht", "zh-hk": "zht" };
+  const primary = langMap[browserLang] || langMap[browserLang.split("-")[0]] || ALL_LANGS.find((l) => browserLang.startsWith(l)) || "en";
+  return [primary, ...ALL_LANGS.filter((l) => l !== primary)];
+}
+
+const DEFAULT_LANG_PRIORITY = getDefaultLangPriority();
+
 async function loadPreferences() {
   const stored = await browser.storage.local.get({
     setOrder: null,
@@ -28,6 +39,7 @@ async function loadPreferences() {
     preferredFinish: "any",
     preferredBorder: "any",
     framePriority: DEFAULT_FRAME_PRIORITY,
+    langPriority: DEFAULT_LANG_PRIORITY,
     sortDirection: "asc",
     advancedMode: false,
   });
@@ -38,15 +50,16 @@ async function loadPreferences() {
     preferredFinish: stored.preferredFinish || "any",
     preferredBorder: stored.preferredBorder || "any",
     framePriority: stored.framePriority || DEFAULT_FRAME_PRIORITY,
+    langPriority: stored.langPriority || DEFAULT_LANG_PRIORITY,
     sortDirection: stored.sortDirection || "asc",
     advancedMode: stored.advancedMode || false,
   };
 }
 
 // Fetch ALL printings of a card
-async function fetchAllPrintings(cardName) {
+async function fetchAllPrintings(cardName, includeMultilingual = false) {
   let allCards = [];
-  let url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(`!"${cardName}"`)}&unique=prints&order=released&dir=asc`;
+  let url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(`!"${cardName}"`)}&unique=prints&order=released&dir=asc${includeMultilingual ? "&include_multilingual=true" : ""}`;
 
   while (url) {
     await waitForRateLimit();
@@ -97,7 +110,9 @@ async function findPreferredPrinting(cardName) {
   const prefs = await loadPreferences();
 
   try {
-    const printings = await fetchAllPrintings(cardName);
+    // Include multilingual results when top language isn't English
+    const needMultilingual = prefs.langPriority[0] !== "en";
+    const printings = await fetchAllPrintings(cardName, needMultilingual);
     if (printings.length === 0) {
       cache.set(cardName, { imageUrl: null, timestamp: Date.now() });
       return null;
@@ -139,8 +154,13 @@ async function findPreferredPrinting(cardName) {
       return null;
     }
 
+    // Build language priority map
+    const langPriorityMap = new Map();
+    prefs.langPriority.forEach((lang, idx) => langPriorityMap.set(lang, idx));
+    const maxLangPriority = prefs.langPriority.length;
+
     if (prefs.advancedMode) {
-      // Advanced mode: sort by set order, then release date
+      // Advanced mode: sort by language, then set order, then release date
       const setOrderMap = new Map();
       if (prefs.setOrder) {
         prefs.setOrder.forEach((code, idx) => setOrderMap.set(code, idx));
@@ -148,6 +168,10 @@ async function findPreferredPrinting(cardName) {
       const maxSetPriority = prefs.setOrder ? prefs.setOrder.length : 0;
 
       candidates.sort((a, b) => {
+        const aLang = langPriorityMap.has(a.lang) ? langPriorityMap.get(a.lang) : maxLangPriority;
+        const bLang = langPriorityMap.has(b.lang) ? langPriorityMap.get(b.lang) : maxLangPriority;
+        if (aLang !== bLang) return aLang - bLang;
+
         if (prefs.setOrder) {
           const aSet = setOrderMap.has(a.set) ? setOrderMap.get(a.set) : maxSetPriority;
           const bSet = setOrderMap.has(b.set) ? setOrderMap.get(b.set) : maxSetPriority;
@@ -157,12 +181,16 @@ async function findPreferredPrinting(cardName) {
         return prefs.sortDirection === "desc" ? -dateCompare : dateCompare;
       });
     } else {
-      // Simple mode: sort by per-card frame, then release date
+      // Simple mode: sort by language, then frame, then release date
       const framePriorityMap = new Map();
       prefs.framePriority.forEach((frame, idx) => framePriorityMap.set(frame, idx));
       const maxFramePriority = prefs.framePriority.length;
 
       candidates.sort((a, b) => {
+        const aLang = langPriorityMap.has(a.lang) ? langPriorityMap.get(a.lang) : maxLangPriority;
+        const bLang = langPriorityMap.has(b.lang) ? langPriorityMap.get(b.lang) : maxLangPriority;
+        if (aLang !== bLang) return aLang - bLang;
+
         const aFrame = framePriorityMap.has(a.frame) ? framePriorityMap.get(a.frame) : maxFramePriority;
         const bFrame = framePriorityMap.has(b.frame) ? framePriorityMap.get(b.frame) : maxFramePriority;
         if (aFrame !== bFrame) return aFrame - bFrame;
@@ -187,7 +215,7 @@ browser.storage.onChanged.addListener((changes) => {
   if (
     changes.setOrder || changes.excludedSets || changes.blockedPrintings ||
     changes.preferredFinish || changes.preferredBorder || changes.framePriority ||
-    changes.sortDirection || changes.advancedMode
+    changes.langPriority || changes.sortDirection || changes.advancedMode
   ) {
     cache.clear();
   }
