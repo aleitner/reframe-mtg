@@ -46,12 +46,14 @@ async function replaceImage(img) {
   if (skipNames.includes(cardName)) return;
 
   const originalSrc = img.src;
+  const face = /\/normal\/back\//.test(originalSrc) ? "back" : "front";
   inflight.add(img);
 
   try {
     const response = await browser.runtime.sendMessage({
       type: "lookup",
       cardName,
+      face,
     });
 
     if (response?.imageUrl && enabled) {

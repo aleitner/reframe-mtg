@@ -98,15 +98,19 @@ function isBlocked(card, blockedPrintings) {
   return false;
 }
 
-function getImageUrl(card) {
-  return (
-    card.image_uris?.normal ||
-    card.card_faces?.[0]?.image_uris?.normal ||
-    null
-  );
+function getImageUrl(card, face) {
+  if (card.image_uris?.normal) return card.image_uris.normal;
+
+  // Double-faced card: pick the requested face
+  if (card.card_faces && card.card_faces.length > 1) {
+    const idx = face === "back" ? 1 : 0;
+    return card.card_faces[idx]?.image_uris?.normal || card.card_faces[0]?.image_uris?.normal || null;
+  }
+
+  return card.card_faces?.[0]?.image_uris?.normal || null;
 }
 
-async function findPreferredPrinting(cardName) {
+async function findPreferredPrinting(cardName, face) {
   const prefs = await loadPreferences();
 
   try {
@@ -114,7 +118,7 @@ async function findPreferredPrinting(cardName) {
     const needMultilingual = prefs.langPriority[0] !== "en";
     const printings = await fetchAllPrintings(cardName, needMultilingual);
     if (printings.length === 0) {
-      cache.set(cardName, { imageUrl: null, timestamp: Date.now() });
+      cache.set(`${cardName}:${face}`, { imageUrl: null, timestamp: Date.now() });
       return null;
     }
 
@@ -150,7 +154,7 @@ async function findPreferredPrinting(cardName) {
     }
 
     if (candidates.length === 0) {
-      cache.set(cardName, { imageUrl: null, timestamp: Date.now() });
+      cache.set(`${cardName}:${face}`, { imageUrl: null, timestamp: Date.now() });
       return null;
     }
 
@@ -200,12 +204,12 @@ async function findPreferredPrinting(cardName) {
       });
     }
 
-    const imageUrl = getImageUrl(candidates[0]);
-    cache.set(cardName, { imageUrl, timestamp: Date.now() });
+    const imageUrl = getImageUrl(candidates[0], face);
+    cache.set(`${cardName}:${face}`, { imageUrl, timestamp: Date.now() });
     return imageUrl;
   } catch (err) {
     console.error("[MTG Printing Prefs] Lookup failed for:", cardName, err);
-    cache.set(cardName, { imageUrl: null, timestamp: Date.now() });
+    cache.set(`${cardName}:${face}`, { imageUrl: null, timestamp: Date.now() });
     return null;
   }
 }
@@ -222,27 +226,28 @@ browser.storage.onChanged.addListener((changes) => {
 });
 
 // Deduplicated lookup
-function lookup(cardName) {
-  const cached = cache.get(cardName);
+function lookup(cardName, face) {
+  const cacheKey = `${cardName}:${face}`;
+  const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return Promise.resolve(cached.imageUrl);
   }
 
-  if (pending.has(cardName)) {
-    return pending.get(cardName);
+  if (pending.has(cacheKey)) {
+    return pending.get(cacheKey);
   }
 
-  const promise = findPreferredPrinting(cardName).finally(() => {
-    pending.delete(cardName);
+  const promise = findPreferredPrinting(cardName, face).finally(() => {
+    pending.delete(cacheKey);
   });
-  pending.set(cardName, promise);
+  pending.set(cacheKey, promise);
   return promise;
 }
 
 // Listen for messages from content script
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "lookup") {
-    lookup(message.cardName).then((imageUrl) => {
+    lookup(message.cardName, message.face || "front").then((imageUrl) => {
       sendResponse({ imageUrl });
     });
     return true;
